@@ -17,7 +17,7 @@ public class Position {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String positionName;
-    @ManyToMany(mappedBy="positions",cascade=CascadeType.ALL)
+    @ManyToMany(mappedBy="positions", cascade=CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<User> users;
 
 }

@@ -19,7 +19,7 @@ public class User {
     private String userName;
     private String userFullName;
     private String userPasswords;
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @JoinTable(
             name="user_position",
             joinColumns = @JoinColumn(name="user_id"),
@@ -27,7 +27,7 @@ public class User {
     )
     private Set<Position> positions;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @JoinTable(
             name="department",
             joinColumns = @JoinColumn(name="user_id"),

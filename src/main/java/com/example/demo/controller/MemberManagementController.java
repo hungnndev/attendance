@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 //import com.example.demo.model.MemberManagement;
 //import com.example.service.IMemberManagementService;
+import com.example.demo.model.Position;
 import com.example.demo.model.User;
 import com.example.demo.service.IMemberManagementService;
 import com.example.demo.service.MemberManagementService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @CrossOrigin("*")
@@ -27,6 +29,12 @@ public class MemberManagementController {
     public ResponseEntity<User> findUserById(@PathVariable Long id) {
         Optional<User> userOptional = memberManagementService.findById(id);
         return userOptional.map(user -> new ResponseEntity<User>(user, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("getPosition/{id}")
+    public ResponseEntity<?> getPosition(@PathVariable Long id) {
+        Set<Position> positions = memberManagementService.getPositionByUser(id);
+        return ResponseEntity.ok().body(positions);
     }
 
     @PostMapping("")
