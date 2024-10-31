@@ -21,8 +21,8 @@ public class MemberManagementController {
     @Autowired
     private MemberManagementService memberManagementService;
     @GetMapping
-    public Iterable<User> getAllUsers() {
-        return memberManagementService.findAll();
+    public ResponseEntity<?> getAllUsers() {
+        return ResponseEntity.ok().body(memberManagementService.getAllUser());
     }
 
     @GetMapping("/{id}")
