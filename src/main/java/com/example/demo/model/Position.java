@@ -1,7 +1,11 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
@@ -17,7 +21,9 @@ public class Position {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String positionName;
-    @ManyToMany(mappedBy="positions", cascade=CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy="positions", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<User> users;
+
 
 }

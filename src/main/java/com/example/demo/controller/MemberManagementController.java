@@ -1,9 +1,10 @@
 package com.example.demo.controller;
 //import com.example.demo.model.MemberManagement;
 //import com.example.service.IMemberManagementService;
+import com.example.demo.model.Department;
 import com.example.demo.model.Position;
 import com.example.demo.model.User;
-import com.example.demo.service.IMemberManagementService;
+import com.example.demo.model.WorkingTime;
 import com.example.demo.service.MemberManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @RestController
 @CrossOrigin("*")
@@ -33,8 +33,18 @@ public class MemberManagementController {
 
     @GetMapping("getPosition/{id}")
     public ResponseEntity<?> getPosition(@PathVariable Long id) {
-        Set<Position> positions = memberManagementService.getPositionByUser(id);
+        List<Position> positions = memberManagementService.getPositionByUser(id);
         return ResponseEntity.ok().body(positions);
+    }
+    @GetMapping("getDepartment/{id}")
+    public ResponseEntity<?> getDepartment(@PathVariable Long id){
+        List<Department>departments=memberManagementService.getDepartmentByUser(id);
+        return ResponseEntity.ok().body(departments);
+    }
+    @GetMapping("getWorkingTime/{id}")
+    public ResponseEntity<?>getWorkingTime(@PathVariable Long id){
+        List<WorkingTime>workingTimes=memberManagementService.getWorkingTimebyUser(id);
+        return ResponseEntity.ok().body(workingTimes);
     }
 
     @PostMapping("")
@@ -62,8 +72,6 @@ public class MemberManagementController {
         memberManagementService.remove(id);
         return new ResponseEntity<>(userOptional.get(), HttpStatus.NO_CONTENT);
     }
-
-
 
 
 }

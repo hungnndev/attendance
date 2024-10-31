@@ -4,10 +4,10 @@ import com.example.demo.model.Position;
 import com.example.demo.model.User;
 import org.springframework.stereotype.Repository;
 
-import java.util.Set;
+import java.util.List;
 
 @Repository
 public interface IMemberManagementService extends IGeneralService<User> {
 
-    Set<Position> getPositionByUser(Long userId);
+    List<Position> getPositionByUser(Long userId);
 }
