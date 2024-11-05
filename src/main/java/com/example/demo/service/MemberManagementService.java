@@ -88,6 +88,7 @@ public class MemberManagementService implements IMemberManagementService {
         for(User user : users){
             UserDTO userDTO = new UserDTO();
             userDTO.setUserName(user.getUserName());
+//            userDTO.setUserFullName(user.getUserFullName());
 
             //get position list by user and set to position for user
             List<Position> positions = positionRepository.findByUsers(user);
