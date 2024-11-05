@@ -17,7 +17,7 @@
             <th>ID</th>
             <th>Fullname</th>
             <th>Username</th>
-            <th>Password</th>
+<!--            <th>Password</th>-->
             <th>Action</th>
         </tr>
         </thead>
@@ -25,9 +25,9 @@
         <tbody>
         <tr th:each="user : ${users}">
             <td th:text="${user.id}"></td>
-            <td th:text="${user.fullname}"></td>
-            <td th:text="${user.username}"></td>
-            <td th:text="${user.password}"></td>
+            <td th:text="${user.userFullName}"></td>
+            <td th:text="${user.userName}"></td>
+<!--            <td th:text="${user.userPasswords}"></td>-->
 
             <td style="white-space: nowrap">
                 <a class="btn btn-primary btn-sm"
