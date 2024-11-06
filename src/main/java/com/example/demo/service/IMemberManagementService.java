@@ -14,5 +14,4 @@ public interface IMemberManagementService extends IGeneralService<User>, UserDet
 
     List<Position> getPositionByUser(Long userId);
     List<UserDTO> getAllUser();
-//    List<UserDTO> getAllUserById();
 }
