@@ -7,6 +7,7 @@ import java.util.Set;
 public class UserDTO {
     private Long id;
     private String userName;
-    private Set<String> locations;
+    private String userFullName;
+    private Set<String> positions;
     private Set<String> departments;
 }
