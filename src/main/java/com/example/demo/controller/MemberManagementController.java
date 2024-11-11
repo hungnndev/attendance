@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 //import com.example.demo.model.MemberManagement;
 //import com.example.service.IMemberManagementService;
+import com.example.demo.dto.PositionDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.dto.UserExcelDTO;
 import com.example.demo.excel.UserExcelExporter;
@@ -21,12 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
+@CrossOrigin(origins = "*")
 @RequestMapping("/user/member")
 public class MemberManagementController {
     @Autowired
@@ -44,7 +43,6 @@ public class MemberManagementController {
         Optional<User> userOptional = memberManagementService.findById(id);
         return userOptional.map(user -> new ResponseEntity<User>(user, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
 
     @GetMapping("getPosition/{id}")
     public ResponseEntity<?> getPosition(@PathVariable Long id) {
@@ -65,25 +63,38 @@ public class MemberManagementController {
     }
 
     @PostMapping("")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        memberManagementService.save(user);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
+        User newUser = new User();
+        newUser.setUserName(userDTO.getUserName());
+        newUser.setUserFullName(userDTO.getUserFullName());
+        memberManagementService.save(newUser);
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @PutMapping ("/{id}")
-    public ResponseEntity<User> editUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<User> editUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
         Optional<User> userOptional = memberManagementService.findById(id);
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         User existingUser = userOptional.get();
-        existingUser.setId(id);
-        existingUser.setUserName(user.getUserName());
-        existingUser.setUserFullName(user.getUserFullName());
-        existingUser.setUserPasswords(user.getUserPasswords());
-        existingUser.setWorkingTimes(user.getWorkingTimes());
-        existingUser.setDepartments(user.getDepartments());
-        existingUser.setPositions(user.getPositions());
+        existingUser.setId(userDTO.getId());
+        existingUser.setUserName(userDTO.getUserName());
+        existingUser.setUserFullName(userDTO.getUserFullName());
+        Set<PositionDTO> positionDTOS = userDTO.getPositions();
+        Set<Position> positions = new HashSet<>();
+        for (PositionDTO positionDTO : positionDTOS) {
+            Position position = new Position();
+            position.setId(positionDTO.getId());
+            position.setPositionName(positionDTO.getPositionName());
+            positions.add(position);
+        }
+        existingUser.setPositions(positions);
+
+//        existingUser.setUserPasswords(userDTO.getUserPasswords());
+//        existingUser.setWorkingTimes(userDTO.getWorkingTimes());
+//        existingUser.setDepartments(user.getDepartments());
+//        existingUser.setPositions(user.getPositions());
         memberManagementService.save(existingUser);
         return new ResponseEntity<>(existingUser, HttpStatus.OK);
     }
@@ -92,7 +103,7 @@ public class MemberManagementController {
     @DeleteMapping("/{id}")
     public ResponseEntity<User> deleteUser(@PathVariable Long id) {
         Optional<User> userOptional = memberManagementService.findById(id);
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         memberManagementService.remove(id);
