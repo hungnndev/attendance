@@ -6,30 +6,33 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
 @Table(name = "position")
-@Builder
-@AllArgsConstructor
+@Entity
+@Getter
+@Setter
 @NoArgsConstructor
-@Data
-
-
-public class Position {
+@AllArgsConstructor
+@Builder
+public class Position implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String positionName;
-    @ManyToMany(mappedBy="positions", cascade=CascadeType.ALL, fetch = FetchType.EAGER)
+
+    @ManyToMany(mappedBy = "positions", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<User> users;
 
     public Position(String positionName) {
-        this.positionName=positionName;
+        this.positionName = positionName;
     }
-    public Position(PositionDTO positionDTO){
-        this.positionName= positionDTO.getPositionName();
+
+    public Position(PositionDTO positionDTO) {
+        this.positionName = positionDTO.getPositionName();
     }
 }

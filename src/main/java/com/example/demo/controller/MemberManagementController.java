@@ -1,6 +1,5 @@
 package com.example.demo.controller;
-//import com.example.demo.model.MemberManagement;
-//import com.example.service.IMemberManagementService;
+
 import com.example.demo.dto.PositionDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.dto.UserExcelDTO;
@@ -9,15 +8,12 @@ import com.example.demo.model.Department;
 import com.example.demo.model.Position;
 import com.example.demo.model.User;
 import com.example.demo.model.WorkingTime;
-//import com.example.demo.service.ExcelService;
 import com.example.demo.service.MemberManagementService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -25,23 +21,20 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/user/member")
 public class MemberManagementController {
     @Autowired
     private MemberManagementService memberManagementService;
 
     @GetMapping
-
     public ResponseEntity<?> getAllUsers() {
-        return ResponseEntity.ok().body(memberManagementService.getAllUser());
+        return ResponseEntity.ok().body(memberManagementService.findAll());
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getAllUserById(@PathVariable Long id) {
         Optional<User> userOptional = memberManagementService.findById(id);
-        return userOptional.map(user -> new ResponseEntity<User>(user, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return userOptional.map(user -> new ResponseEntity<>(user, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("getPosition/{id}")
@@ -71,7 +64,7 @@ public class MemberManagementController {
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
-    @PutMapping ("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<User> editUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
         Optional<User> userOptional = memberManagementService.findById(id);
         if (userOptional.isEmpty()) {
@@ -90,11 +83,6 @@ public class MemberManagementController {
             positions.add(position);
         }
         existingUser.setPositions(positions);
-
-//        existingUser.setUserPasswords(userDTO.getUserPasswords());
-//        existingUser.setWorkingTimes(userDTO.getWorkingTimes());
-//        existingUser.setDepartments(user.getDepartments());
-//        existingUser.setPositions(user.getPositions());
         memberManagementService.save(existingUser);
         return new ResponseEntity<>(existingUser, HttpStatus.OK);
     }

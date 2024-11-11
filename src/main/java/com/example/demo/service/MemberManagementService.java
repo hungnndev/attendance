@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,44 +23,26 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-
 public class MemberManagementService implements IMemberManagementService {
-//
-//    @Autowired
-//    private Session session;
 
     private final MemberManagementRepository memberManagementRepository;
     private final PositionRepository positionRepository;
     private final DepartmentRepository departmentRepository;
     private final WorkingTimeRepository workingTimeRepository;
-    private final PasswordEncoder passwordEncoder;
-//    public MemberManagementService(MemberManagementRepository memberManagementRepository, PositionRepository positionRepository, DepartmentRepository departmentRepository, WorkingTimeRepository workingTimeRepository) {
-//        this.memberManagementRepository = memberManagementRepository;
-//        this.positionRepository = positionRepository;
-//        this.departmentRepository = departmentRepository;
-//        this.workingTimeRepository = workingTimeRepository;
-//    }
 
-    @Transactional
     @Override
     public Iterable<User> findAll() {
         return memberManagementRepository.findAll();
-
     }
-    @Transactional
+
     @Override
-    public  Optional<User> findById(Long id) {
-        Optional<User> userOptional =memberManagementRepository.findById(id);
-//        if(userOptional.isPresent()){
-//            List<WorkingTime>workingTimes = workingTimeRepository.findByUser(userOptional.get());
-//            userOptional.get().setWorkingTimes(new HashSet<>(workingTimes));
-//        }
-        return userOptional;
+    public Optional<User> findById(Long id) {
+        return memberManagementRepository.findById(id);
     }
 
     @Transactional
     @Override
-    public User save( User user) {
+    public User save(User user) {
         return memberManagementRepository.save(user);
     }
 
@@ -69,12 +50,11 @@ public class MemberManagementService implements IMemberManagementService {
     @Override
     public void remove(Long id) {
         memberManagementRepository.deleteById(id);
-
     }
-    @Transactional
+
     @Override
     public List<Position> getPositionByUser(Long userId) {
-        if (userId!= null) {
+        if (userId != null) {
             Optional<User> optionalUser = memberManagementRepository.findById(userId);
             if (optionalUser.isPresent()) {
                 User foundUser = optionalUser.get();
@@ -90,7 +70,7 @@ public class MemberManagementService implements IMemberManagementService {
     public List<UserDTO> getAllUser() {
         List<User> users = memberManagementRepository.findAll();
         List<UserDTO> userDTOS = new ArrayList<>();
-        for(User user : users){
+        for (User user : users) {
             UserDTO userDTO = new UserDTO();
             userDTO.setUserName(user.getUserName());
             userDTO.setUserFullName(user.getUserFullName());
@@ -99,57 +79,50 @@ public class MemberManagementService implements IMemberManagementService {
             //get position list by user and set to position for user
             List<Position> positions = positionRepository.findByUsers(user);
             Set<PositionDTO> positionDTOS = new HashSet<>();
-            for (Position position : positions){
+            for (Position position : positions) {
                 PositionDTO positionDTO = new PositionDTO();
                 positionDTO.setId(position.getId());
                 positionDTO.setPositionName(position.getPositionName());
                 positionDTOS.add(positionDTO);
             }
-//            Set<PositionDTO> positionNames = positions.stream().map(Position::getPositionName).collect(Collectors.toSet());
             userDTO.setPositions(positionDTOS);
 
             //get department list by user and set to department for user
             List<Department> departments = departmentRepository.findByUsers(user);
-            Set<DepartmentDTO> departmentDTOS= new HashSet<>();
-            for(Department department: departments){
+            Set<DepartmentDTO> departmentDTOS = new HashSet<>();
+            for (Department department : departments) {
                 DepartmentDTO departmentDTO = new DepartmentDTO();
                 departmentDTO.setDepartmentName(department.getDepartmentName());
                 departmentDTOS.add(departmentDTO);
             }
             userDTO.setDepartments(departmentDTOS);
-//            userDTO.setDepartments(departments.stream().map(Department::getDepartmentName).collect(Collectors.toSet()));
-
-//          //get workingTime by user and set to workingTime for user
-//            List<WorkingTime> workingTimes = workingTimeRepository.findByUser(user);
-//            userDTO.setWorkingTime(workingTimes.stream().map(WorkingTime::get).collect(Collectors.toSet()));
 
             userDTOS.add(userDTO);
         }
         return userDTOS;
     }
 
-    public List<Department>getDepartmentByUser(Long userId){
-        if(userId!=null){
-            Optional<User>optionalUser=memberManagementRepository.findById(userId);
-            if(optionalUser.isPresent()){
-                User foundUser=optionalUser.get();
-                List<Department>departments=departmentRepository.findByUsers(foundUser);
-                log.info("Department of user {}:{}",foundUser.getUserName(),departments);
+    public List<Department> getDepartmentByUser(Long userId) {
+        if (userId != null) {
+            Optional<User> optionalUser = memberManagementRepository.findById(userId);
+            if (optionalUser.isPresent()) {
+                User foundUser = optionalUser.get();
+                List<Department> departments = departmentRepository.findByUsers(foundUser);
+                log.info("Department of user {}:{}", foundUser.getUserName(), departments);
                 return departments;
             }
         }
         return Collections.emptyList();
     }
-    public List<WorkingTime>getWorkingTimebyUser(Long userId){
-        if(userId!=null){
-            Optional<User>optionalUser=memberManagementRepository.findById(userId);
-            if(optionalUser.isPresent()){
-                User foundUser=optionalUser.get();
-                List<WorkingTime> workingTimes= workingTimeRepository.findByUser(foundUser);
-                for(WorkingTime workingTime:workingTimes){
-                    log.info("WorkingTime for user{}:Date,{}Checkin_time:{},Checkout_time{},Breaktime{},Overtime{},Worktime{}",foundUser.getUserName(),
-                            workingTime.getDate(), workingTime.getCheckin_time(), workingTime.getCheckout_time(),
-                            workingTime.getWorktime(), workingTime.getBreaktime(), workingTime.getOvertime());
+
+    public List<WorkingTime> getWorkingTimebyUser(Long userId) {
+        if (userId != null) {
+            Optional<User> optionalUser = memberManagementRepository.findById(userId);
+            if (optionalUser.isPresent()) {
+                User foundUser = optionalUser.get();
+                List<WorkingTime> workingTimes = workingTimeRepository.findByUser(foundUser);
+                for (WorkingTime workingTime : workingTimes) {
+                    log.info("WorkingTime for user{}:Date,{}Checkin_time:{},Checkout_time{},Breaktime{},Overtime{},Worktime{}", foundUser.getUserName(), workingTime.getDate(), workingTime.getCheckin_time(), workingTime.getCheckout_time(), workingTime.getWorktime(), workingTime.getBreaktime(), workingTime.getOvertime());
 
                 }
                 return workingTimes;
@@ -161,9 +134,11 @@ public class MemberManagementService implements IMemberManagementService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = memberManagementRepository.findByUserName(username);
-        String pass = passwordEncoder.encode(user.getUserPasswords());
-        return new MyUserPrincipal(user);
+        Optional<User> user = memberManagementRepository.findByUserName(username);
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User is not exist!");
+        }
+        return new MyUserPrincipal(user.get());
     }
 
     public List<UserExcelDTO> getUsersExcel() {

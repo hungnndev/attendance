@@ -1,4 +1,5 @@
 package com.example.demo.controller;
+
 import com.example.demo.model.JobType;
 import com.example.demo.service.IJobTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/api/jobtypes")
 public class JobTypeController {
     @Autowired

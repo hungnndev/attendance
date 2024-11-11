@@ -1,4 +1,5 @@
 package com.example.demo.excel;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 public class UserExcelExporter {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
@@ -52,7 +54,7 @@ public class UserExcelExporter {
             cell.setCellValue((Integer) value);
         } else if (value instanceof Boolean) {
             cell.setCellValue((Boolean) value);
-        }else {
+        } else {
             cell.setCellValue((String) value);
         }
         cell.setCellStyle(style);
