@@ -1,13 +1,10 @@
 package com.example.demo.model;
 
-import com.example.demo.dto.PositionDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Objects;
 import java.util.Set;
 
 @Table(name = "position")
@@ -27,12 +24,4 @@ public class Position implements Serializable {
     @ManyToMany(mappedBy = "positions", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<User> users;
-
-    public Position(String positionName) {
-        this.positionName = positionName;
-    }
-
-    public Position(PositionDTO positionDTO) {
-        this.positionName = positionDTO.getPositionName();
-    }
 }

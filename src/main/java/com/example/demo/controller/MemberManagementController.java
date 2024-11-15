@@ -1,18 +1,24 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.DepartmentDTO;
 import com.example.demo.dto.PositionDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.dto.UserExcelDTO;
+import com.example.demo.excel.UserCSVExporter;
 import com.example.demo.excel.UserExcelExporter;
 import com.example.demo.model.Department;
 import com.example.demo.model.Position;
 import com.example.demo.model.User;
 import com.example.demo.model.WorkingTime;
+import com.example.demo.repository.DepartmentRepository;
+import com.example.demo.repository.PositionRepository;
+import com.example.demo.repository.WorkingTimeRepository;
 import com.example.demo.service.MemberManagementService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -25,6 +31,18 @@ import java.util.*;
 public class MemberManagementController {
     @Autowired
     private MemberManagementService memberManagementService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private PositionRepository positionRepository;
+
+    @Autowired
+    private WorkingTimeRepository workingTimeRepository;
 
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
@@ -60,6 +78,36 @@ public class MemberManagementController {
         User newUser = new User();
         newUser.setUserName(userDTO.getUserName());
         newUser.setUserFullName(userDTO.getUserFullName());
+        newUser.setUserPasswords(passwordEncoder.encode(userDTO.getPassword()));
+        Set<PositionDTO> positionDTOS = userDTO.getPositions();
+        Set<Position> positions = new HashSet<>();
+        for (PositionDTO positionDTO : positionDTOS) {
+            Position position;
+            Optional<Position> optionalPosition = positionRepository.findById(positionDTO.getId());
+            if (optionalPosition.isPresent()) {
+                position = optionalPosition.get();
+            } else {
+                position = new Position();
+                position.setPositionName(positionDTO.getPositionName());
+            }
+            positions.add(position);
+        }
+        newUser.setPositions(positions);
+        //Set department of departmentDTOs for department
+        Set<DepartmentDTO> departmentDTOS = userDTO.getDepartments();
+        Set<Department> departments = new HashSet<>();
+        for(DepartmentDTO departmentDTO : departmentDTOS){
+            Department department;
+            Optional<Department> optionalDepartment = departmentRepository.findById(departmentDTO.getId());
+            if (optionalDepartment.isPresent()) {
+                department = optionalDepartment.get();
+            } else {
+                department = new Department();
+                department.setDepartmentName(departmentDTO.getDepartmentName());
+            }
+            departments.add(department);
+        }
+        newUser.setDepartments(departments);
         memberManagementService.save(newUser);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
@@ -94,7 +142,7 @@ public class MemberManagementController {
         if (userOptional.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        memberManagementService.remove(id);
+        memberManagementService.delete(userOptional.get());
         return new ResponseEntity<>(userOptional.get(), HttpStatus.NO_CONTENT);
     }
 
@@ -115,18 +163,22 @@ public class MemberManagementController {
         excelExporter.export(response);
 
     }
-//    private  ExcelService excelService;
-//
-//    public void ExcelController(ExcelService excelService) {
-//        this.excelService = excelService;
-//    }
-//
-//    @PostMapping("/convertToCsv")
-//    public ResponseEntity<String> convertExcelToCsv(@RequestParam("file") MultipartFile file) {
-//        try {
-//            String csvFilePath = excelService.convertExcelToCsv(file);
-//            return ResponseEntity.ok("File CSV đã được lưu tại: " + csvFilePath);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Chuyển đổi thất bại");
-//        }
+
+    @GetMapping("/exportCSV")
+    public void exportToCSV(HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=users_" + currentDateTime + ".csv";
+        response.setHeader(headerKey, headerValue);
+
+        List<UserExcelDTO> listUsers = memberManagementService.getUsersExcel();
+
+        UserCSVExporter csvExporter = new UserCSVExporter(listUsers);
+
+        csvExporter.generateCSV(response);
+
+    }
 }

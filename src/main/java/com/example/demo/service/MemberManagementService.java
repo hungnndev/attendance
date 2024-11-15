@@ -46,10 +46,16 @@ public class MemberManagementService implements IMemberManagementService {
         return memberManagementRepository.save(user);
     }
 
-    @Transactional
     @Override
     public void remove(Long id) {
-        memberManagementRepository.deleteById(id);
+
+    }
+
+    @Transactional
+    public void delete(User user) {
+//        List<WorkingTime> workingTimes = workingTimeRepository.findByUser(user);
+//        workingTimeRepository.deleteAll(workingTimes);
+        memberManagementRepository.deleteById(user.getId());
     }
 
     @Override
