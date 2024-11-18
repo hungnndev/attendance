@@ -15,6 +15,7 @@ import com.example.demo.repository.PositionRepository;
 import com.example.demo.repository.WorkingTimeRepository;
 import com.example.demo.service.MemberManagementService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user/member")
@@ -113,26 +115,55 @@ public class MemberManagementController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> editUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
-        Optional<User> userOptional = memberManagementService.findById(id);
-        if (userOptional.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        User existingUser = userOptional.get();
-        existingUser.setId(userDTO.getId());
-        existingUser.setUserName(userDTO.getUserName());
-        existingUser.setUserFullName(userDTO.getUserFullName());
-        Set<PositionDTO> positionDTOS = userDTO.getPositions();
-        Set<Position> positions = new HashSet<>();
-        for (PositionDTO positionDTO : positionDTOS) {
-            Position position = new Position();
-            position.setId(positionDTO.getId());
-            position.setPositionName(positionDTO.getPositionName());
-            positions.add(position);
-        }
-        existingUser.setPositions(positions);
-        memberManagementService.save(existingUser);
-        return new ResponseEntity<>(existingUser, HttpStatus.OK);
+    public ResponseEntity<User> editUser(@PathVariable Long id, @RequestBody @Valid UserDTO userDTO) {
+//        Optional<User> userOptional = memberManagementService.findById(id);
+//        if (userOptional.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//        User existingUser = userOptional.get();
+//        if(userDTO.getId() != null){
+//            existingUser.setId(userDTO.getId());
+//        }
+//        if(userDTO.getUserName() != null){
+//            existingUser.setUserName(userDTO.getUserName());
+//        }
+//        if(userDTO.getUserFullName() != null){
+//            existingUser.setUserFullName(userDTO.getUserFullName());
+//        }
+//        if (userDTO.getPassword() != null){
+//            existingUser.setUserPasswords(passwordEncoder.encode(userDTO.getPassword()));
+//        }
+//        //Get old position list
+//        Set<Position> oldPositions = existingUser.getPositions();
+//
+//        // 新しいポジションIDリストをDTOから取得
+//        Set<Long> newPositionIds = userDTO.getPositions().stream()
+//                .map(PositionDTO::getId)
+//                .collect(Collectors.toSet());
+//        Set<Position> newPositions = new HashSet<>();
+//        for (Long positionId : newPositionIds) {
+//            Position position;
+//            Optional<Position> optionalPosition = positionRepository.findById(positionId);
+//            if (optionalPosition.isPresent()) {
+//                newPositions.add(optionalPosition.get());
+//            } else {
+//                // ポジションが存在しない場合の処理（必要ならエラーを返す）
+//                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//            }
+//            //get list of positions to delete
+//            Set<Position> positionsToRemove = new HashSet<>(oldPositions);
+//            positionsToRemove.removeAll(newPositions);
+//
+//            //get list of positions to add
+//            Set<Position> positionsToAdd = new HashSet<>(newPositions);
+//            positionsToAdd.removeAll(oldPositions);
+//
+//            // Update the user's positions
+//            existingUser.getPositions().removeAll(positionsToRemove);
+//            existingUser.getPositions().addAll(positionsToAdd);
+//        }
+        User user = memberManagementService.updateUserWithoutPosition(userDTO);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
 

@@ -12,8 +12,10 @@ import com.example.demo.repository.WorkingTimeRepository;
 import com.example.demo.security.MyUserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ public class MemberManagementService implements IMemberManagementService {
     private final PositionRepository positionRepository;
     private final DepartmentRepository departmentRepository;
     private final WorkingTimeRepository workingTimeRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Iterable<User> findAll() {
@@ -106,6 +109,84 @@ public class MemberManagementService implements IMemberManagementService {
             userDTOS.add(userDTO);
         }
         return userDTOS;
+    }
+
+    @Override
+    public User updateUserWithPosition(UserDTO userDTO) {
+        User newUser = new User();
+        newUser.setUserName(userDTO.getUserName());
+        newUser.setUserFullName(userDTO.getUserFullName());
+        newUser.setUserPasswords(passwordEncoder.encode(userDTO.getPassword()));
+        Set<PositionDTO> positionDTOS = userDTO.getPositions();
+        Set<Position> positions = new HashSet<>();
+        for (PositionDTO positionDTO : positionDTOS) {
+            Position position;
+            Optional<Position> optionalPosition = positionRepository.findById(positionDTO.getId());
+            if (optionalPosition.isPresent()) {
+                position = optionalPosition.get();
+            } else {
+                position = new Position();
+                position.setPositionName(positionDTO.getPositionName());
+            }
+            positions.add(position);
+        }
+
+
+        return null;
+    }
+
+    @Override
+    public User updateUserWithoutPosition(UserDTO userDTO) {
+        Optional<User> userOptional = memberManagementRepository.findById(userDTO.getId());
+        if (userOptional.isEmpty()) {
+            throw new RuntimeException("User is not exit");
+        }
+        User oldUser = userOptional.get();
+        Optional.ofNullable(userDTO.getUserName()).ifPresent(oldUser::setUserName);
+        Optional.ofNullable(userDTO.getUserFullName()).ifPresent(oldUser::setUserFullName);
+//        Optional.ofNullable(passwordEncoder.encode(userDTO.getPassword())).ifPresent(oldUser::setUserPasswords);
+        // ------------------ for positions ----------------------
+        // get old positions
+        Set<Position> oldPositions = oldUser.getPositions();
+        // get new positions
+        Set<PositionDTO> newPositions = userDTO.getPositions();
+        // get all positions
+        List<Position> positions = positionRepository.findAll();
+        // Add elements that are in newPositions but not in oldPositions
+        for (PositionDTO position : newPositions) {
+            if (oldPositions.stream().noneMatch(o -> Objects.equals(o.getId(), position.getId()))) {
+                Optional<Position> optional = positions.stream().filter(item -> Objects.equals(item.getId(), position.getId())).findFirst();
+                optional.ifPresent(oldPositions::add);
+            }
+        }
+        // Remove objects from oldPositions that are not in newPositions
+        oldPositions.removeIf(oldObj -> newPositions.stream().noneMatch(n -> Objects.equals(n.getId(), oldObj.getId())));
+        // set positions again
+        oldUser.setPositions(oldPositions);
+        // ------------------ for departments ----------------------
+        // get old departments
+        Set<Department> oldDepartments = oldUser.getDepartments();
+        // get new departments
+        Set<DepartmentDTO> newDepartments = userDTO.getDepartments();
+        // get all departments
+        List<Department> departments = departmentRepository.findAll();
+        // Add elements that are in newDepartments but not in oldDepartments
+        for (DepartmentDTO departmentDTO : newDepartments) {
+            if (oldDepartments.stream().noneMatch(o -> Objects.equals(o.getId(), departmentDTO.getId()))) {
+                Optional<Department> optional = departments.stream().filter(item -> Objects.equals(item.getId(), departmentDTO.getId())).findFirst();
+                optional.ifPresent(oldDepartments::add);
+            }
+        }
+        // Remove objects from oldDepartments that are not in newDepartments
+        oldDepartments.removeIf(oldObj -> newDepartments.stream().noneMatch(n -> Objects.equals(n.getId(), oldObj.getId())));
+        // set departments again
+        oldUser.setDepartments(oldDepartments);
+
+        // @TODO implement for workingTimes
+
+
+        memberManagementRepository.save(oldUser);
+        return oldUser;
     }
 
     public List<Department> getDepartmentByUser(Long userId) {
