@@ -5,30 +5,27 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
-@Table(name = "task")
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Table(name = "task")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+
 public class Task implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
-    private LocalDateTime date;
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private float totalTime;
-
+    @Column(columnDefinition = "TEXT")
     private String comment;
 
     @ManyToOne
-    @JoinColumn(name = "working_time_id")
+    @JoinColumn(name = "work_time_id")
     @JsonBackReference
-    private WorkingTime workingTime;
+    private WorkTime workTime;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
@@ -36,8 +33,8 @@ public class Task implements Serializable {
     private Project project;
 
     @ManyToOne
-    @JoinColumn(name = "jobtype_id")
-    @JsonBackReference
-    private JobType jobtype;
+    @JoinColumn(name = "job_type_id")
+    @JsonBackReference("jobtype-task")
+    private JobType jobType;
 
 }

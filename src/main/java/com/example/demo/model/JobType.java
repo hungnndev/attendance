@@ -1,34 +1,34 @@
 package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Set;
 
-@Table(name = "jobtype")
-@Entity
 @Getter
 @Setter
-@NoArgsConstructor
+
+@Entity
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
+@Table(name = "jobtype")
+
 public class JobType implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
-    private String jobTypeName;
-    private LocalDateTime create_at;
-    private LocalDateTime update_at;
+    private String name;
 
-    @ManyToMany(mappedBy = "jobtypes")
+    @ManyToMany(mappedBy = "jobTypes")
     @JsonBackReference
     private Set<Department> departments;
 
-    @OneToMany(mappedBy = "jobtype", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "jobType",cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Task> tasks;
+
 }

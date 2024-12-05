@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
+
 public class PositionDTO {
     private Long id;
-    private String positionName;
+    private String name;
 }

@@ -1,39 +1,32 @@
 package com.example.demo.model;
 
 import com.example.demo.dto.UserDTO;
-import com.example.demo.repository.DepartmentRepository;
-import com.example.demo.repository.PositionRepository;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.*;
 import lombok.*;
 
-
 import java.io.Serializable;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-@Table(name = "user")
 @Entity
+@Table(name = "user")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class User implements Serializable {
 
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String fullName;
     private String userName;
-    private String userFullName;
-    private String userPasswords;
-
+    private String password;
     @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     @JoinTable(
-            name = "user_position",
-            joinColumns = @JoinColumn(name = "user_id"),
+            name="user_position",
+            joinColumns = @JoinColumn(name="user_id"),
             inverseJoinColumns = @JoinColumn(name = "position_id")
     )
     @JsonManagedReference
@@ -46,17 +39,16 @@ public class User implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
     @JsonManagedReference
-    @JsonIgnoreProperties(value = { "jobtypes" })
     private Set<Department> departments;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    @JsonIgnoreProperties(value = { "tasks" })
-    private Set<WorkingTime> workingTimes;
+    private Set<WorkTime> workTimes;
 
+    //constructor
     public User(UserDTO userDTO) {
-        this.id = userDTO.getId();
         this.userName = userDTO.getUserName();
-        this.userFullName = userDTO.getUserFullName();
+        this.fullName = userDTO.getFullName();
+        this.password = userDTO.getPassword();
     }
 }

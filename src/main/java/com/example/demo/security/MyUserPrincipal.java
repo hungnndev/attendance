@@ -17,17 +17,16 @@ public class MyUserPrincipal implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
-//                new SimpleGrantedAuthority("ROLE_USER"),
-//                new SimpleGrantedAuthority("ROLE_ADMIN"));
     }
 
     @Override
     public String getPassword() {
-        return this.user.getUserPasswords();
+        return this.user.getPassword();
     }
 
     @Override
     public String getUsername() {
         return this.user.getUserName();
     }
+    //...
 }

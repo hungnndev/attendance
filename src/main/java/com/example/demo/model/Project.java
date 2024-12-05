@@ -5,32 +5,24 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Set;
 
-@Table(name = "project")
 @Entity
+//@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Table(name = "project")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+
 public class Project implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-
     private String code;
-
-    private LocalDateTime create_at;
-
-    private LocalDateTime update_at;
-
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project")
     @JsonManagedReference
     private Set<Task> tasks;
-
-
 }

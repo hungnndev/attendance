@@ -1,66 +1,97 @@
 package com.example.demo.controller;
 
+
+import com.example.demo.dto.JobTypeDTO;
 import com.example.demo.model.JobType;
-import com.example.demo.service.IJobTypeService;
+import com.example.demo.service.JobType.IJobTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/jobtypes")
+@CrossOrigin("*")
+@RequestMapping("/jobtype")
+
 public class JobTypeController {
     @Autowired
     private IJobTypeService jobTypeService;
 
-    // Lấy danh sách tất cả JobTypes
-    @GetMapping("")
-    public ResponseEntity<List<JobType>> getAllJobTypes() {
-        List<JobType> jobTypes = jobTypeService.findAll();
-        if (jobTypes.isEmpty()) {
+    //show list
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<Iterable<JobType>> getAllJobType() {
+        List<JobType> jobTypeList = (List<JobType>) jobTypeService.findAll();
+        if (jobTypeList.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(jobTypes, HttpStatus.OK);
+        return new ResponseEntity<>(jobTypeList, HttpStatus.OK);
     }
 
-    // Lấy thông tin của một JobType dựa trên id
+    //find by id
     @GetMapping("/{id}")
-    public ResponseEntity<JobType> getJobTypeById(@PathVariable Long id) {
-        Optional<JobType> jobType = jobTypeService.findById(id);
-        return jobType.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<JobType> findJobTypesById(@PathVariable Long id) {
+        Optional<JobType> jobTypeOptional = jobTypeService.findById(id);
+        return jobTypeOptional.map(JobType -> new ResponseEntity<>(JobType, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    // Tạo mới một JobType
+    //create
     @PostMapping("")
-    public ResponseEntity<JobType> createJobType(@RequestBody JobType jobType) {
-        jobTypeService.save(jobType);
-        return new ResponseEntity<>(jobType, HttpStatus.CREATED);
+    public ResponseEntity<JobType> createJobType(@RequestBody JobTypeDTO jobTypeDTO) {
+        JobType newJobType = new JobType();
+        newJobType.setName(jobTypeDTO.getName());
+
+        //save new jobType
+        jobTypeService.save(newJobType);
+        return new ResponseEntity<>(newJobType, HttpStatus.CREATED);
     }
 
-    // Cập nhật một JobType
+    //edit
     @PutMapping("/{id}")
-    public ResponseEntity<JobType> updateJobType(@PathVariable Long id, @RequestBody JobType jobType) {
-        Optional<JobType> existingJobType = jobTypeService.findById(id);
-        if (!existingJobType.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> editTask(@PathVariable Long id, @RequestBody Map<String, Object> requestBody) {
+        try {
+            // Fetch the existing WorkTime record
+            Optional<JobType> optionalJobType = jobTypeService.findById(id);
+            if (optionalJobType.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("JobType not found.");
+            }
+            JobType existingJobType = optionalJobType.get();
+
+            // Parse request body for editable fields
+            if (requestBody.containsKey("name")) {
+                existingJobType.setName(String.valueOf((String) requestBody.get("name")));
+            }
+
+            // Save updated JobType
+            JobType updatedJobType = jobTypeService.save(existingJobType);
+
+            // Map JobType to DTO
+            JobTypeDTO jobTypeDTO = new JobTypeDTO();
+            jobTypeDTO.setId(updatedJobType.getId());
+            jobTypeDTO.setName(updatedJobType.getName());
+
+            // Return response
+            return ResponseEntity.ok(jobTypeDTO);
+
+        } catch (Exception e) {
+            // Handle exceptions gracefully
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred: " + e.getMessage());
         }
-        jobType.setId(id);
-        jobTypeService.save(jobType);
-        return new ResponseEntity<>(jobType, HttpStatus.OK);
     }
 
-    // Xóa một JobType dựa trên id
+    //delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteJobType(@PathVariable Long id) {
-        Optional<JobType> jobType = jobTypeService.findById(id);
-        if (!jobType.isPresent()) {
+    public ResponseEntity<Void> deleteJobType(@PathVariable Long id) {
+        Optional<JobType> jobTypeOptional = jobTypeService.findById(id);
+        if (!jobTypeOptional.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         jobTypeService.remove(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 }
