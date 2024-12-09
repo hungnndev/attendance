@@ -1,22 +1,17 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.request.UserCreationRequest;
+import com.example.demo.dto.response.UserResponse;
 //import com.example.demo.enums.Notification;
-
-import com.example.demo.dto.request.AuthenticationRequest;
-import com.example.demo.dto.request.IntrospectRequest;
-import com.example.demo.dto.response.AuthenticationResponse;
-import com.example.demo.dto.response.IntrospectResponse;
-import com.example.demo.exception.AppException;
-import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.UserMapper;
-import com.example.demo.model.User;
+import com.example.demo.model.Position;
 import com.example.demo.repository.IPositionRepository;
-import com.example.demo.repository.IUserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,12 +21,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.example.demo.dto.request.AuthenticationRequest;
+import com.example.demo.dto.request.IntrospectRequest;
+import com.example.demo.dto.response.AuthenticationResponse;
+import com.example.demo.dto.response.IntrospectResponse;
+import com.example.demo.model.User;
+import com.example.demo.exception.AppException;
+import com.example.demo.exception.ErrorCode;
+import com.example.demo.repository.IUserRepository;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.StringJoiner;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +62,7 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
         User user = userRepository.findByUserName(authenticationRequest.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        if (!passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(authenticationRequest.getUser_passwords(), user.getPassword())) {
             throw new AppException(ErrorCode.AUTHENTICATION_FAILED); // Return an error if passwords do not match
         }
 

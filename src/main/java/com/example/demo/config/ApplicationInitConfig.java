@@ -1,8 +1,5 @@
 package com.example.demo.config;
 
-import com.example.demo.enums.Position;
-import com.example.demo.model.User;
-import com.example.demo.repository.IUserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -11,6 +8,9 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.demo.model.User;
+import com.example.demo.enums.Position;
+import com.example.demo.repository.IUserRepository;
 
 import java.util.HashSet;
 

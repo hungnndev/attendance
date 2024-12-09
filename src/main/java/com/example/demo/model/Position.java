@@ -2,10 +2,12 @@ package com.example.demo.model;
 
 import com.example.demo.dto.PositionDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -22,7 +24,7 @@ public class Position implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @ManyToMany(mappedBy="positions", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy="positions", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<User> users;
 

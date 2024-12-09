@@ -1,9 +1,9 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.*;
 import com.example.demo.dto.DepartmentDTO;
 import com.example.demo.dto.DepartmentSummaryDTO;
 import com.example.demo.dto.JobTypeDTO;
-import com.example.demo.dto.UserDTO;
 import com.example.demo.model.Department;
 import com.example.demo.model.JobType;
 import com.example.demo.model.User;
@@ -14,11 +14,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -185,12 +191,21 @@ public class DepartmentController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //summarize
+    //summarize JobType
     @GetMapping("/summarize")
     public ResponseEntity<List<DepartmentSummaryDTO>> getSummaryByDepartment() {
         List<DepartmentSummaryDTO> summaries = departmentService.getSummaryByDepartment();
         return ResponseEntity.ok(summaries);
     }
+
+    //summarize project
+    @GetMapping("/summarize3")
+    public ResponseEntity<List<DepartmentSummaryDTO3>> getSummaryByDepartment3() {
+        List<DepartmentSummaryDTO3> summaries = departmentService.getSummaryByDepartment3();
+        return ResponseEntity.ok(summaries);
+    }
+
+    //CSV
     @GetMapping("/exportCSV")
     public void generateCSV(HttpServletResponse response) throws IOException {
         List<DepartmentSummaryDTO> summaries = departmentService.getSummaryByDepartment();

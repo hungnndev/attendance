@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.TaskDTO;
+import com.example.demo.dto.*;
 import com.example.demo.model.*;
 import com.example.demo.service.JobType.IJobTypeService;
 import com.example.demo.service.Project.IProjectService;
@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin("*")
@@ -68,15 +68,6 @@ public class TaskController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("WorkTime not found.");
             }
             WorkTime workTime = optionalWorkTime.get();
-            User currentUser = workTime.getUser();
-            Set<Department> departments = currentUser.getDepartments();
-
-            // Check task count for the date
-            LocalDate workDate = workTime.getDate();
-            int taskCount = taskService.countByWorkTimeAndDate(workTimeId, workDate);
-            if (taskCount >20) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Task limit for the day exceeded.");
-            }
 
             // Fetch Project entity
             Optional<Project> optionalProject = projectService.findById(projectId);
@@ -91,15 +82,6 @@ public class TaskController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("JobType not found.");
             }
             JobType jobType = optionalJobType.get();
-
-            boolean isAllowed = departments.stream()
-                    .flatMap(department -> department.getJobTypes().stream())
-                    .anyMatch(JobType->JobType.getId().equals(jobType.getId()));
-
-            if (!isAllowed){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Selected JobType is not allowed for the user's departments");
-            }
 
             // Create and save Task
             Task task = Task.builder()

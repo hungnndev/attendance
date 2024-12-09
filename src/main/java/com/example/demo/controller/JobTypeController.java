@@ -2,7 +2,13 @@ package com.example.demo.controller;
 
 
 import com.example.demo.dto.JobTypeDTO;
+import com.example.demo.dto.ProjectDTO;
+import com.example.demo.dto.TaskDTO;
+import com.example.demo.model.Department;
 import com.example.demo.model.JobType;
+import com.example.demo.model.Project;
+import com.example.demo.model.Task;
+import com.example.demo.service.Department.IDepartmentService;
 import com.example.demo.service.JobType.IJobTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

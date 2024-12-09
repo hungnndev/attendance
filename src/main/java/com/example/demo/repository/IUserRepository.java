@@ -16,5 +16,4 @@ public interface IUserRepository extends JpaRepository <User, Long> {
     List<User> findByDepartments(Department department);
     //Security
     User findFirstByUserName(String username);
-
 }

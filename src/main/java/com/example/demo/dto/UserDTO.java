@@ -17,8 +17,3 @@ public class UserDTO {
     private Set<PositionDTO> positions;
     private Set<WorkTimeDTO> workTimes;
 }
-
-
-
-
-

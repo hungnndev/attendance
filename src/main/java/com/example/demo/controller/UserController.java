@@ -1,22 +1,26 @@
 package com.example.demo.controller;
 
+import com.example.demo.csv.UserCSVExporter;
+import com.example.demo.dto.*;
 //import com.example.demo.dto.UserExcelDTO;
 //import com.example.demo.excel.UserExcelExporter;
-
 import com.example.demo.dto.DepartmentDTO;
 import com.example.demo.dto.PositionDTO;
 import com.example.demo.dto.UserDTO;
-import com.example.demo.dto.response.ApiResponse;
-import com.example.demo.dto.response.UserResponse;
 import com.example.demo.model.Department;
 import com.example.demo.model.Position;
 import com.example.demo.model.User;
 import com.example.demo.model.WorkTime;
+
 import com.example.demo.repository.IDepartmentRepository;
 import com.example.demo.repository.IPositionRepository;
 import com.example.demo.service.Department.DepartmentService;
+import com.example.demo.repository.IDepartmentRepository;
+import com.example.demo.repository.IPositionRepository;
+import com.example.demo.service.Department.IDepartmentService;
 import com.example.demo.service.User.IUserService;
-import com.example.demo.service.User.UserService;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,12 +30,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import com.example.demo.dto.request.UserCreationRequest;
+import com.example.demo.dto.request.UserUpdateRequest;
+import com.example.demo.dto.response.ApiResponse;
+import com.example.demo.dto.response.UserResponse;
+import com.example.demo.service.User.UserService;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin("*")
@@ -64,8 +77,7 @@ public class UserController {
     //show list
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
-        return ResponseEntity.ok().body(userService.getAllUser());
-
+        return ResponseEntity.ok().body(userService.findAll());
     }
 
     //show by Id
@@ -236,4 +248,5 @@ public class UserController {
         userService.remove(id);
         return new ResponseEntity<>(userOptional.get(), HttpStatus.NO_CONTENT);
     }
+
 }

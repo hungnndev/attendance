@@ -2,14 +2,10 @@ package com.example.demo.service.Project;
 
 import com.example.demo.dto.JobTypeSummaryDTO;
 import com.example.demo.dto.ProjectDTO;
-import com.example.demo.dto.ProjectSummaryDTO;
+import com.example.demo.dto.SummaryByProjectDTO;
 import com.example.demo.dto.TaskDTO;
-import com.example.demo.model.JobType;
-import com.example.demo.model.Project;
-import com.example.demo.model.Task;
-import com.example.demo.model.User;
-import com.example.demo.repository.IProjectRepository;
-import com.example.demo.repository.ITaskRepository;
+import com.example.demo.model.*;
+import com.example.demo.repository.*;
 import com.opencsv.CSVWriter;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -156,12 +152,12 @@ public class ProjectService implements IProjectService {
     }
 
     //Summarize by Project
-    public List<ProjectSummaryDTO> getSummaryByProject() {
-        List<ProjectSummaryDTO> summaries = new ArrayList<>();
+    public List<SummaryByProjectDTO> getSummaryByProject() {
+        List<SummaryByProjectDTO> summaries = new ArrayList<>();
         List<Project> projects = projectRepository.findAll();
 
         for (Project project : projects) {
-            ProjectSummaryDTO projectSummary = new ProjectSummaryDTO();
+            SummaryByProjectDTO projectSummary = new SummaryByProjectDTO();
             projectSummary.setName(project.getName());
 
             // Map to accumulate total time for each JobType within the project
@@ -195,7 +191,7 @@ public class ProjectService implements IProjectService {
     }
 
     // Phương thức xuất CSV cho ProjectSummaryDTO
-    public void exportProjectSummaryToCSV(HttpServletResponse response, List<ProjectSummaryDTO> summaries) throws IOException {
+    public void exportProjectSummaryToCSV(HttpServletResponse response, List<SummaryByProjectDTO> summaries) throws IOException {
         // Cài đặt loại nội dung và tên tệp CSV cho phản hồi HTTP
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=project_summary.csv");
@@ -207,7 +203,7 @@ public class ProjectService implements IProjectService {
         writer.writeNext(new String[] {"Project Name", "Job Type", "Total Time"});
 
         // Duyệt qua danh sách summaries và thêm dữ liệu vào file CSV
-        for (ProjectSummaryDTO projectSummary : summaries) {
+        for (SummaryByProjectDTO projectSummary : summaries) {
             String projectName = projectSummary.getName();
 
             // Duyệt qua danh sách JobTypeSummaryDTO trong DepartmentSummaryDTO

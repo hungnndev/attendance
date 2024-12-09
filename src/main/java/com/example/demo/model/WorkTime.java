@@ -1,11 +1,11 @@
 package com.example.demo.model;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
