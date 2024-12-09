@@ -1,4 +1,3 @@
-/*
 package com.example.demo.dto;
 
 import lombok.Getter;
@@ -12,4 +11,4 @@ import java.util.Set;
 public class DepartmentEditRequest {
     private String name;
     private Set<Long> jobTypeIds;
-}*/
+}

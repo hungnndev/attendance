@@ -29,13 +29,32 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityConfig {
     @Value("${jwt.signerKey}")
     private String signerKey;
-    private final String[] PUBLIC_URLS = {"/auth/token", "/auth/introspect","/auth/register"};
+    private final String[] PUBLIC_URLS = {"/auth/token", "/auth/introspect","/auth/register","/token"};
     private final String[] PRIVATE_URLS = {"/users","worktime/checkin"};
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_URLS).permitAll()
-                        .anyRequest().authenticated());
+//                        .requestMatchers("/favicon.ico").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/loginui").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/userui").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/departmentui").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/userui/createuser").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/userui/createuser").permitAll()
+                        .requestMatchers(HttpMethod.GET,"userui/editUser/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"userui/editUser/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/static/**", "/js/**", "/css/**", "/images/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/logout").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/userui/deleteUser/**").permitAll()
+                        .anyRequest().authenticated())
+                        .logout(logout ->
+                                logout.logoutUrl("/logout") // Endpoint để xử lý logout
+                        .logoutSuccessUrl("/loginui?logout") // Chuyển hướng sau khi logout thành công
+                        .invalidateHttpSession(true) // Xóa session
+                        .deleteCookies("token") // Xóa cookie token (nếu có)
+                        .permitAll() // Cho phép tất cả người dùng truy cập
+        );
+
         httpSecurity.oauth2ResourceServer(auth2 ->
                 auth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))

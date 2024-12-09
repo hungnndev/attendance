@@ -77,7 +77,8 @@ public class UserController {
     //show list
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
-        return ResponseEntity.ok().body(userService.findAll());
+        return ResponseEntity.ok().body(userService.getAllUser());
+
     }
 
     //show by Id
@@ -248,5 +249,4 @@ public class UserController {
         userService.remove(id);
         return new ResponseEntity<>(userOptional.get(), HttpStatus.NO_CONTENT);
     }
-
 }
