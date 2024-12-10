@@ -9,12 +9,14 @@ import com.example.demo.model.User;
 import com.example.demo.repository.IDepartmentRepository;
 import com.example.demo.repository.IPositionRepository;
 import com.example.demo.service.User.IUserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.PasswordAuthentication;
@@ -22,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/userui")
+@RequestMapping("/members")
 public class UserUIController {
     @Autowired
     private IUserService userService;
@@ -33,7 +35,6 @@ public class UserUIController {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-
     //Show User List
     @GetMapping({""})
     public String getUserList(Model model) {
@@ -42,24 +43,24 @@ public class UserUIController {
         return "user/index";
     }
 
-    @GetMapping("/createuser")
+    @GetMapping("/create")
     public String createUserForm(Model model) {
         User user = new User();
         model.addAttribute("user", user);
         return "user/CreateUser";
     }
 
-    @PostMapping("/createuser")
+    @PostMapping("/create")
     public String saveUser(@ModelAttribute("user") User model) {
         userService.save(model);
-        return "redirect:/userui";
+        return "redirect:/members";
     }
 
-    @GetMapping("/editUser/{id}")
+    @GetMapping("/edit/{id}")
     public String editUserForm(@PathVariable("id") Long id, Model model) {
         Optional<User> user = userService.findById(id);
         if (user.isEmpty()) {
-            return "redirect:/userui?error=User not found";
+            return "redirect:/members?error=User not found";
         }
         //get list position
         List<Department> departments =departmentRepository.findAll();
@@ -70,12 +71,16 @@ public class UserUIController {
         return "user/EditUser";
     }
 
-    @PostMapping("/editUser/{id}")
+    @PostMapping("/edit/{id}")
     public String updateUser(@PathVariable("id") Long id,
+                             @Valid
                              @ModelAttribute("user") User updatedUser,
                              @RequestParam(value = "positionIds", required = false) Set<Long> positionIds,
                              @RequestParam(value = "departmentIds", required = false) Set<Long> departmentIds,
-                             Model model) {
+                             Model model, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()){
+            return "user/EditUser";
+        }
 
         // Lấy thông tin người dùng cũ
         Optional<User> optionalUser = userService.findById(id);
@@ -109,9 +114,9 @@ public class UserUIController {
 
         // Lưu thông tin người dùng
         userService.save(existingUser);
-        return "redirect:/userui";
+        return "redirect:/members";
     }
-    @GetMapping("/deleteUser/{id}")
+    @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable Long id, Model model){
         Optional<User> user = userService.findById(id);
         if (user.isPresent()) {
@@ -121,7 +126,7 @@ public class UserUIController {
         } else {
             model.addAttribute("error", "User not found.");
         }
-        return "redirect:/userui"; // Chuyển hướng về trang userui
+        return "redirect:/members"; // Chuyển hướng về trang userui
     }
 
 }

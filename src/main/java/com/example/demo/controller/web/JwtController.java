@@ -1,5 +1,4 @@
 package com.example.demo.controller.web;
-
 import com.example.demo.dto.request.AuthenticationRequest;
 import com.example.demo.dto.response.AuthenticationResponse;
 import com.example.demo.service.AuthenticationService;
@@ -7,7 +6,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
@@ -38,18 +36,18 @@ public class JwtController {
             return "redirect:/loginui";
         }
 
-     try {
-        final String token = result.getToken();
-        Cookie cookie = new Cookie("token",token);
-        cookie.setMaxAge(Integer.MAX_VALUE);
-         cookie.setPath("/");
-        res.addCookie(cookie);
-        return "redirect:/userui";
-     }catch(Exception e)
-     {
-        session.setAttribute("msg","Credentials were right But something went wrong!!");
-        return "redirect:/loginui";
-     }
+        try {
+            final String token = result.getToken();
+            Cookie cookie = new Cookie("token",token);
+            cookie.setMaxAge(Integer.MAX_VALUE);
+            cookie.setPath("/");
+            res.addCookie(cookie);
+            return "redirect:/members";
+        }catch(Exception e)
+        {
+            session.setAttribute("msg","Credentials were right But something went wrong!!");
+            return "redirect:/loginui";
+        }
     }
 
     @GetMapping("/logout")
